@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Geolocation API Example</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            text-align: center;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        #status {
+            margin-top: 15px;
+            font-size: 1.1em;
+            color: #333;
+        }
+        #map-link {
+            display: inline-block;
+            margin-top: 10px;
+            font-size: 1em;
+            color: #007bff;
+            text-decoration: none;
+        }
+        #map-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <h1>Find My Location</h1>
+    <button id="find-me">Show My Location</button>
+    <p id="status">Click the button to find your location.</p>
+    <a id="map-link" target="_blank" rel="noopener noreferrer"></a>
+
+    <script>
+        function geoFindMe() {
+            const statusElement = document.querySelector("#status");
+            const mapLinkElement = document.querySelector("#map-link");
+            mapLinkElement.href = "";
+            mapLinkElement.textContent = "";
+          
+            function success(position) {
+                const latitude = position.coords.latitude;
+                const longitude = position.coords.longitude;
+
+                statusElement.textContent = "Location found successfully!";
+                mapLinkElement.href = `https://www.openstreetmap.org/#map=18/${latitude}/${longitude}`;
+                mapLinkElement.textContent = `Latitude: ${latitude} °, Longitude: ${longitude} °`;
+            }
+          
+            function error(error) {
+                let errorMessage = "Unable to retrieve your location.";
+                switch(error.code) {
+                    case error.PERMISSION_DENIED:
+                        errorMessage = "User denied the request for Geolocation.";
+                        break;
+                    case error.POSITION_UNAVAILABLE:
+                        errorMessage = "Location information is unavailable.";
+                        break;
+                    case error.TIMEOUT:
+                        errorMessage = "The request to get user location timed out.";
+                        break;
+                    case error.UNKNOWN_ERROR:
+                        errorMessage = "An unknown error occurred.";
+                        break;
+                }
+                statusElement.textContent = errorMessage;
+                console.error("Geolocation error:", error); 
+            }
+
+            if (!navigator.geolocation) {
+                statusElement.textContent = "Geolocation is not supported by your browser.";
+            } else {
+                statusElement.textContent = "Locating… Please grant permission if prompted.";
+                navigator.geolocation.getCurrentPosition(
+                    success,
+                    error,
+                    {
+                        enableHighAccuracy: true, 
+                        timeout: 5000,           
+                        maximumAge: 0            
+                    }
+                );
+            }
+        }
+      
+        document.querySelector("#find-me").addEventListener("click", geoFindMe);
+    </script>
+</body>
+</html>
